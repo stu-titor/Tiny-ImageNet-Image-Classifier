@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.ops import SqueezeExcitation
+from torchvision.ops import stochastic_depth
 
 class ImageNeuralNetwork(nn.Module):
     
-    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.5):
+    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.3):
         super().__init__() 
         
         # Instance variables
@@ -62,6 +63,7 @@ class ImageNeuralNetwork(nn.Module):
             if i != 0:
                 if inital.shape[1] != x.shape[1]:
                     inital = F.pad(inital, (0,0,0,0,0, x.shape[1] - inital.shape[1]))
+                    x = stochastic_depth(x, p = 0.1, mode = "batch", training = self.training) #add linear schedule for p later
                 x += inital
             x = F.silu(x)
             x = self.pool(x)
