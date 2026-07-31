@@ -6,7 +6,7 @@ from torchvision.ops import stochastic_depth
 
 class ImageNeuralNetwork(nn.Module):
     
-    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.3):
+    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.4, max_sd_prob = 0.1):
         super().__init__() 
         
         # Instance variables
@@ -52,6 +52,10 @@ class ImageNeuralNetwork(nn.Module):
 
         self.dropout = nn.Dropout(dropout_rate)
 
+        self.sd_probability = []
+        for i in range(conv_blocks):
+            self.sd_probability.append(max_sd_prob * i / max(conv_blocks - 1, 1))
+
     def forward(self, x):
         # Convolutional blocks
         for i in range(len(self.convBlocks1)):
@@ -63,7 +67,7 @@ class ImageNeuralNetwork(nn.Module):
             if i != 0:
                 if inital.shape[1] != x.shape[1]:
                     inital = F.pad(inital, (0,0,0,0,0, x.shape[1] - inital.shape[1]))
-                    x = stochastic_depth(x, p = 0.1, mode = "batch", training = self.training) #add linear schedule for p later
+                x = stochastic_depth(x, p = self.sd_probability[i], mode = "batch", training = self.training) 
                 x += inital
             x = F.silu(x)
             x = self.pool(x)
