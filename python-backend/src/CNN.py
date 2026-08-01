@@ -6,30 +6,30 @@ from torchvision.ops import stochastic_depth
 
 class ImageNeuralNetwork(nn.Module):
     
-    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.4, max_sd_prob = 0.1):
+    def __init__(self, channels = 32, layers = 3, conv_blocks = 4, num_classes = 10, se_reduction=16, dropout_rate = 0.35, max_sd_prob = 0.15):
         super().__init__() 
         
         # Instance variables
-        self.convBlocks1 = nn.ModuleList()
+        self.convLayers1 = nn.ModuleList()
         self.batches1 = nn.ModuleList()
 
-        self.convBlocks2 = nn.ModuleList()
+        self.convLayers2 = nn.ModuleList()
         self.batches2 = nn.ModuleList()
 
         self.seBlocks = nn.ModuleList() 
         self.fcs = nn.ModuleList()
 
-        # Convolutional blocks and batch normalizations
+        # Convolutional layers and batch normalizations
         input_channels = 3
         output_channels = channels
         
         for i in range(conv_blocks):
             # first conv batch pair
-            self.convBlocks1.append(nn.Conv2d(input_channels, output_channels, 3, padding = 1))
+            self.convLayers1.append(nn.Conv2d(input_channels, output_channels, 3, padding = 1))
             self.batches1.append(nn.BatchNorm2d(output_channels))
 
             # second conv batch pair
-            self.convBlocks2.append(nn.Conv2d(output_channels, output_channels, 3, padding = 1))
+            self.convLayers2.append(nn.Conv2d(output_channels, output_channels, 3, padding = 1))
             self.batches2.append(nn.BatchNorm2d(output_channels))
 
             squeeze_channels = max(output_channels // se_reduction, 1)
@@ -58,10 +58,10 @@ class ImageNeuralNetwork(nn.Module):
 
     def forward(self, x):
         # Convolutional blocks
-        for i in range(len(self.convBlocks1)):
+        for i in range(len(self.convLayers1)):
             inital = x
-            x = F.silu(self.batches1[i](self.convBlocks1[i](x)))
-            x = self.batches2[i](self.convBlocks2[i](x))
+            x = F.silu(self.batches1[i](self.convLayers1[i](x)))
+            x = self.batches2[i](self.convLayers2[i](x))
             x = self.seBlocks[i](x) 
 
             if i != 0:
