@@ -30,7 +30,7 @@ new_transform = transforms.Compose([
     )
 ])
 
-with open(base_dir / 'data/tiny-imagenet-200/wnids.txt') as file:
+with open(base_dir / 'wnids.txt') as file:
     class_names = sorted(line.strip() for line in file if line.strip())
 
 image_info = ImageNetInfo(subset='imagenet-1k')
