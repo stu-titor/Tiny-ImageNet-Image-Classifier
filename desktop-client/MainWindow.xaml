@@ -213,11 +213,11 @@
 							   Foreground="{StaticResource Signal}" />
 					<TextBlock Style="{StaticResource Caption}"
 							   HorizontalAlignment="Right"
-							   Text="10 classes · 32 × 32" />
+							   Text="200 classes · 64 × 64" />
 				</Grid>
 				<Border Height="1" Background="{StaticResource Rule}" Margin="0,0,0,18" />
 
-				<TextBlock Text="CIFAR-10 Classifier"
+				<TextBlock Text="Image Classifier"
 						   FontSize="27"
 						   FontWeight="Bold"
 						   Foreground="{StaticResource Ink}"
