@@ -9,6 +9,8 @@ import torchvision.transforms as transforms
 from timm.data import ImageNetInfo
 from CNN import ImageNeuralNetwork
 
+#Top-k predictions returned by the model
+NUM_PREDICTIONS = 5
 app = Flask(__name__)
 base_dir = Path(__file__).resolve().parent
 
@@ -42,24 +44,35 @@ def load_image(image_file):
 def predict(image):
     tta_images = torch.cat([image, torch.flip(image, dims=[3])]).to(device)
     with torch.no_grad():
-        output = net(tta_images).mean(dim=0, keepdim=True)
-        _, predicted = torch.max(output, 1)
-    return predicted.item()
+        output = net(tta_images).mean(dim = 0)
+        probabilities = torch.softmax(output, -1) 
+        scores, predictions = torch.topk(probabilities, NUM_PREDICTIONS)
+    return scores.tolist(), predictions.tolist()
 
 @app.route('/classify/file', methods=['POST'])
 def fileClassify():
     file = request.files['image']
-    predicted = predict(load_image(file))
-    wnid = class_names[predicted]
-    return jsonify({"prediction": image_info.label_name_to_description(wnid)})
+    
+    scores, predictions = predict(load_image(file))
+    outputs = []
+    for i in range(NUM_PREDICTIONS):
+        wnid = class_names[predictions[i]]
+        prediction = image_info.label_name_to_description(wnid)
+        outputs.append(f"prediction #{i}: {prediction} - {scores[i] * 100}% chance")
+    return jsonify(outputs)
 
 @app.route('/classify/url', methods=['POST'])
 def urlClassify():
     url = request.get_json()['url']
     file = io.BytesIO(requests.get(url).content)
-    predicted = predict(load_image(file))
-    wnid = class_names[predicted]
-    return jsonify({"prediction": image_info.label_name_to_description(wnid)})
+
+    scores, predictions = predict(load_image(file))
+    outputs = []
+    for i in range(NUM_PREDICTIONS):
+            wnid = class_names[predictions[i]]
+            prediction = image_info.label_name_to_description(wnid)
+            outputs.append(f"prediction #{i}: {prediction} - {scores[i] * 100}% chance")
+    return jsonify(outputs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
