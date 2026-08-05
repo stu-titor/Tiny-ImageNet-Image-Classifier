@@ -4,7 +4,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		mc:Ignorable="d"
-		Title="Squint"
+		Title="CIFAR-10 Classifier"
 		Height="700"
 		Width="440"
 		WindowStartupLocation="CenterScreen"
@@ -21,7 +21,6 @@
 
 	<Window.Resources>
 		<!-- Palette -->
-		<Color x:Key="SignalColor">#FF1B4DFF</Color>
 		<SolidColorBrush x:Key="Ink" Color="#14161A" />
 		<SolidColorBrush x:Key="Muted" Color="#767C86" />
 		<SolidColorBrush x:Key="Rule" Color="#DFE3E9" />
@@ -29,8 +28,9 @@
 		<SolidColorBrush x:Key="SignalDeep" Color="#1236C4" />
 		<SolidColorBrush x:Key="Surface" Color="#FFFFFF" />
 		<SolidColorBrush x:Key="Well" Color="#F5F6F9" />
+		<SolidColorBrush x:Key="FieldEdge" Color="#CDD3DD" />
 
-		<FontFamily x:Key="Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
+		<FontFamily x:Key="Mono">Consolas</FontFamily>
 
 		<!-- Small mono label used for eyebrows and field captions -->
 		<Style x:Key="Caption" TargetType="TextBlock">
@@ -39,10 +39,12 @@
 			<Setter Property="Foreground" Value="{StaticResource Muted}" />
 		</Style>
 
-		<!-- Primary action: filled, quietly animated -->
+		<!-- Primary action -->
 		<Style TargetType="Button">
 			<Setter Property="Foreground" Value="White" />
 			<Setter Property="Background" Value="{StaticResource Signal}" />
+			<Setter Property="BorderBrush" Value="#22000000" />
+			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="FontSize" Value="13.5" />
 			<Setter Property="FontWeight" Value="SemiBold" />
 			<Setter Property="Cursor" Value="Hand" />
@@ -54,20 +56,11 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="Button">
 						<Grid>
-							<Border x:Name="Glow"
-									CornerRadius="11"
-									Background="{TemplateBinding Background}"
-									Opacity="0.28"
-									Margin="0,3,0,-3">
-								<Border.Effect>
-									<BlurEffect Radius="12" />
-								</Border.Effect>
-							</Border>
 							<Border x:Name="Face"
 									CornerRadius="11"
 									Background="{TemplateBinding Background}"
-									BorderThickness="1"
-									BorderBrush="#22000000"
+									BorderBrush="{TemplateBinding BorderBrush}"
+									BorderThickness="{TemplateBinding BorderThickness}"
 									Padding="{TemplateBinding Padding}">
 								<ContentPresenter HorizontalAlignment="Center"
 												  VerticalAlignment="Center"
@@ -83,11 +76,9 @@
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsMouseOver" Value="True">
 								<Setter TargetName="Face" Property="Opacity" Value="0.90" />
-								<Setter TargetName="Glow" Property="Opacity" Value="0.42" />
 							</Trigger>
 							<Trigger Property="IsPressed" Value="True">
 								<Setter TargetName="Face" Property="Opacity" Value="1" />
-								<Setter TargetName="Glow" Property="Opacity" Value="0.12" />
 								<Setter TargetName="Face" Property="RenderTransform">
 									<Setter.Value>
 										<TranslateTransform Y="1" />
@@ -99,7 +90,7 @@
 							</Trigger>
 							<Trigger Property="IsEnabled" Value="False">
 								<Setter TargetName="Face" Property="Background" Value="#C7CBD3" />
-								<Setter TargetName="Glow" Property="Visibility" Value="Collapsed" />
+								<Setter TargetName="Face" Property="BorderBrush" Value="#C7CBD3" />
 								<Setter Property="Foreground" Value="#F2F4F7" />
 								<Setter Property="Cursor" Value="Arrow" />
 							</Trigger>
@@ -109,18 +100,20 @@
 			</Setter>
 		</Style>
 
-		<!-- Secondary action: outlined, sits under the primary in the hierarchy -->
+		<!-- Secondary action -->
 		<Style x:Key="OutlineButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
 			<Setter Property="Foreground" Value="{StaticResource Ink}" />
 			<Setter Property="Background" Value="{StaticResource Surface}" />
+			<Setter Property="BorderBrush" Value="{StaticResource FieldEdge}" />
+			<Setter Property="BorderThickness" Value="1.2" />
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="Button">
 						<Border x:Name="Face"
 								CornerRadius="11"
 								Background="{TemplateBinding Background}"
-								BorderThickness="1.2"
-								BorderBrush="#CDD3DD"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
 								Padding="{TemplateBinding Padding}">
 							<ContentPresenter HorizontalAlignment="Center"
 											  VerticalAlignment="Center"
@@ -151,9 +144,9 @@
 		<Style TargetType="TextBox">
 			<Setter Property="Padding" Value="13,11" />
 			<Setter Property="Background" Value="{StaticResource Surface}" />
-			<Setter Property="Foreground" Value="{StaticResource Ink}" />
+			<Setter Property="BorderBrush" Value="{StaticResource FieldEdge}" />
+			<Setter Property="BorderThickness" Value="1.2" />
 			<Setter Property="CaretBrush" Value="{StaticResource Signal}" />
-			<Setter Property="SelectionBrush" Value="{StaticResource Signal}" />
 			<Setter Property="FontFamily" Value="{StaticResource Mono}" />
 			<Setter Property="FontSize" Value="12.5" />
 			<Setter Property="SnapsToDevicePixels" Value="True" />
@@ -163,8 +156,8 @@
 						<Border x:Name="Field"
 								CornerRadius="11"
 								Background="{TemplateBinding Background}"
-								BorderThickness="1.2"
-								BorderBrush="#CDD3DD"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
 								Padding="{TemplateBinding Padding}">
 							<ScrollViewer x:Name="PART_ContentHost"
 										  VerticalAlignment="Center"
@@ -173,12 +166,8 @@
 										  VerticalScrollBarVisibility="Hidden" />
 						</Border>
 						<ControlTemplate.Triggers>
-							<Trigger Property="IsMouseOver" Value="True">
-								<Setter TargetName="Field" Property="BorderBrush" Value="#B3BCCB" />
-							</Trigger>
 							<Trigger Property="IsKeyboardFocusWithin" Value="True">
 								<Setter TargetName="Field" Property="BorderBrush" Value="{StaticResource Signal}" />
-								<Setter TargetName="Field" Property="Background" Value="#FBFCFF" />
 							</Trigger>
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
@@ -192,6 +181,16 @@
 			<Setter Property="Height" Value="13" />
 			<Setter Property="BorderBrush" Value="#9AA3B2" />
 		</Style>
+
+		<!-- Placeholder text that hides itself once a preview image exists -->
+		<Style x:Key="EmptyPreviewHint" TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+			<Setter Property="Visibility" Value="Collapsed" />
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding Source, ElementName=ImgPreview}" Value="{x:Null}">
+					<Setter Property="Visibility" Value="Visible" />
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
 	</Window.Resources>
 
 	<Grid Margin="20">
@@ -201,23 +200,23 @@
 				BorderBrush="#E1E5EC"
 				BorderThickness="1">
 			<Border.Effect>
-				<DropShadowEffect Color="#0F172A" BlurRadius="34" ShadowDepth="8" Direction="270" Opacity="0.13" />
+				<DropShadowEffect Color="#0F172A" BlurRadius="30" ShadowDepth="6" Direction="270" Opacity="0.13" />
 			</Border.Effect>
 
 			<StackPanel VerticalAlignment="Center">
 
-				<!-- Eyebrow: states the model's fixed constraints, which are real information -->
+				<!-- Eyebrow: the model's fixed constraints -->
 				<Grid Margin="0,0,0,14">
 					<TextBlock Style="{StaticResource Caption}"
 							   Text="I M A G E   M O D E L"
 							   Foreground="{StaticResource Signal}" />
 					<TextBlock Style="{StaticResource Caption}"
 							   HorizontalAlignment="Right"
-							   Text="200 classes · 64 × 64" />
+							   Text="10 classes / 32 x 32" />
 				</Grid>
 				<Border Height="1" Background="{StaticResource Rule}" Margin="0,0,0,18" />
 
-				<TextBlock Text="Image Classifier"
+				<TextBlock Text="CIFAR-10 Classifier"
 						   FontSize="27"
 						   FontWeight="Bold"
 						   Foreground="{StaticResource Ink}"
@@ -232,7 +231,7 @@
 
 				<Button x:Name="BtnPickFile"
 						Style="{StaticResource OutlineButton}"
-						Content="Pick image file"
+						Content="Pick Image File"
 						Click="BtnPickFile_Click" />
 
 				<TextBox x:Name="TxtUrl"
@@ -243,7 +242,7 @@
 						 TextChanged="TxtUrlType"
 						 Margin="0,0,0,18" />
 
-				<!-- Viewfinder: the image is framed like a negative on a contact sheet -->
+				<!-- Viewfinder -->
 				<Grid Margin="0,0,0,16">
 					<Border Background="{StaticResource Well}"
 							BorderBrush="{StaticResource Rule}"
@@ -255,21 +254,10 @@
 								   Stretch="Uniform"
 								   HorizontalAlignment="Center"
 								   VerticalAlignment="Center" />
-							<TextBlock Style="{StaticResource Caption}"
+							<TextBlock Style="{StaticResource EmptyPreviewHint}"
 									   HorizontalAlignment="Center"
 									   VerticalAlignment="Center"
-									   Text="no image loaded">
-								<TextBlock.Style>
-									<Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
-										<Setter Property="Visibility" Value="Collapsed" />
-										<Style.Triggers>
-											<DataTrigger Binding="{Binding Source, ElementName=ImgPreview}" Value="{x:Null}">
-												<Setter Property="Visibility" Value="Visible" />
-											</DataTrigger>
-										</Style.Triggers>
-									</Style>
-								</TextBlock.Style>
-							</TextBlock>
+									   Text="no image loaded" />
 						</Grid>
 					</Border>
 
@@ -300,6 +288,7 @@
 								   Text=""
 								   TextAlignment="Center"
 								   TextWrapping="Wrap"
+								   MinHeight="22"
 								   FontSize="17"
 								   FontWeight="SemiBold"
 								   Foreground="{StaticResource SignalDeep}" />
@@ -307,7 +296,7 @@
 				</Border>
 
 				<Button x:Name="BtnClassify"
-						Content="Classify image"
+						Content="Classify Image"
 						Click="BtnClassify_Click"
 						Margin="0,0,0,0" />
 			</StackPanel>
