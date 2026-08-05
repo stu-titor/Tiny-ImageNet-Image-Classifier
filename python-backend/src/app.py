@@ -58,7 +58,7 @@ def fileClassify():
     for i in range(NUM_PREDICTIONS):
         wnid = class_names[predictions[i]]
         prediction = image_info.label_name_to_description(wnid)
-        outputs.append(f"prediction #{i + 1}: {prediction} - {scores[i] * 100}% chance")
+        outputs.append(f"prediction #{i + 1}: {prediction} - {scores[i] * 100:.2f}% chance")
     return jsonify(outputs)
 
 @app.route('/classify/url', methods=['POST'])
