@@ -2,7 +2,7 @@
 
 A full-stack image classifier for the 200-class Tiny ImageNet dataset. The project combines a custom PyTorch convolutional network and Flask inference API with a Windows WPF desktop client.
 
-The included model accepts RGB images, resizes them to 64×64 pixels, and returns its top five predicted classes. The packaged checkpoint records **70.12% validation accuracy**.
+The included model accepts RGB images, resizes them to 64×64 pixels, and returns its top five predicted classes. The packaged checkpoint records **70.12% validation accuracy** (~71% with TTA).
 
 ## Features
 
