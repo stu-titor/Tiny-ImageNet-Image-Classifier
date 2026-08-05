@@ -94,14 +94,14 @@ namespace CifarInterface
                 var imageContent = new ByteArrayContent(imageBytes);
                 content.Add(imageContent, "image", "upload.jpg");
 
-                response = await client.PostAsync("http://localhost:5000/classify/file", content);
+                response = await client.PostAsync("http://52.207.250.144:5000/classify/file", content);
             } else {
                 var payload = new { url = imageInput };
                 string jsonVer = JsonSerializer.Serialize(payload);
 
                 var content = new StringContent(jsonVer, Encoding.UTF8, "application/json");
 
-                response = await client.PostAsync("http://localhost:5000/classify/url", content);
+                response = await client.PostAsync("http://52.207.250.144:5000/classify/url", content);
             }
 
             string result = await response.Content.ReadAsStringAsync();
