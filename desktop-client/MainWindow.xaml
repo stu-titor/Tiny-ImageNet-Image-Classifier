@@ -4,58 +4,235 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		mc:Ignorable="d"
-		Title="CIFAR-10 Classifier"
-		Height="640"
-		Width="420"
-		Background="#F3F6FB"
+		Title="Squint"
+		Height="700"
+		Width="440"
 		WindowStartupLocation="CenterScreen"
-		ResizeMode="CanMinimize">
+		ResizeMode="CanMinimize"
+		TextOptions.TextFormattingMode="Display"
+		UseLayoutRounding="True">
+
+	<Window.Background>
+		<LinearGradientBrush StartPoint="0,0" EndPoint="0.35,1">
+			<GradientStop Color="#EFF1F4" Offset="0" />
+			<GradientStop Color="#E1E4EA" Offset="1" />
+		</LinearGradientBrush>
+	</Window.Background>
+
 	<Window.Resources>
+		<!-- Palette -->
+		<Color x:Key="SignalColor">#FF1B4DFF</Color>
+		<SolidColorBrush x:Key="Ink" Color="#14161A" />
+		<SolidColorBrush x:Key="Muted" Color="#767C86" />
+		<SolidColorBrush x:Key="Rule" Color="#DFE3E9" />
+		<SolidColorBrush x:Key="Signal" Color="#1B4DFF" />
+		<SolidColorBrush x:Key="SignalDeep" Color="#1236C4" />
+		<SolidColorBrush x:Key="Surface" Color="#FFFFFF" />
+		<SolidColorBrush x:Key="Well" Color="#F5F6F9" />
+
+		<FontFamily x:Key="Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+		<!-- Small mono label used for eyebrows and field captions -->
+		<Style x:Key="Caption" TargetType="TextBlock">
+			<Setter Property="FontFamily" Value="{StaticResource Mono}" />
+			<Setter Property="FontSize" Value="10.5" />
+			<Setter Property="Foreground" Value="{StaticResource Muted}" />
+		</Style>
+
+		<!-- Primary action: filled, quietly animated -->
 		<Style TargetType="Button">
-			<Setter Property="Background" Value="#2563EB" />
 			<Setter Property="Foreground" Value="White" />
-			<Setter Property="BorderThickness" Value="0" />
-			<Setter Property="Padding" Value="12,10" />
-			<Setter Property="Margin" Value="0,0,0,12" />
-			<Setter Property="FontSize" Value="14" />
+			<Setter Property="Background" Value="{StaticResource Signal}" />
+			<Setter Property="FontSize" Value="13.5" />
 			<Setter Property="FontWeight" Value="SemiBold" />
 			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Padding" Value="14,12" />
+			<Setter Property="Margin" Value="0,0,0,12" />
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+			<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Grid>
+							<Border x:Name="Glow"
+									CornerRadius="11"
+									Background="{TemplateBinding Background}"
+									Opacity="0.28"
+									Margin="0,3,0,-3">
+								<Border.Effect>
+									<BlurEffect Radius="12" />
+								</Border.Effect>
+							</Border>
+							<Border x:Name="Face"
+									CornerRadius="11"
+									Background="{TemplateBinding Background}"
+									BorderThickness="1"
+									BorderBrush="#22000000"
+									Padding="{TemplateBinding Padding}">
+								<ContentPresenter HorizontalAlignment="Center"
+												  VerticalAlignment="Center"
+												  RecognizesAccessKey="True" />
+							</Border>
+							<Border x:Name="Ring"
+									CornerRadius="13"
+									Margin="-2"
+									BorderThickness="2"
+									BorderBrush="#551B4DFF"
+									Visibility="Collapsed" />
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Face" Property="Opacity" Value="0.90" />
+								<Setter TargetName="Glow" Property="Opacity" Value="0.42" />
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="Face" Property="Opacity" Value="1" />
+								<Setter TargetName="Glow" Property="Opacity" Value="0.12" />
+								<Setter TargetName="Face" Property="RenderTransform">
+									<Setter.Value>
+										<TranslateTransform Y="1" />
+									</Setter.Value>
+								</Setter>
+							</Trigger>
+							<Trigger Property="IsKeyboardFocused" Value="True">
+								<Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="Face" Property="Background" Value="#C7CBD3" />
+								<Setter TargetName="Glow" Property="Visibility" Value="Collapsed" />
+								<Setter Property="Foreground" Value="#F2F4F7" />
+								<Setter Property="Cursor" Value="Arrow" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
 		</Style>
+
+		<!-- Secondary action: outlined, sits under the primary in the hierarchy -->
+		<Style x:Key="OutlineButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+			<Setter Property="Foreground" Value="{StaticResource Ink}" />
+			<Setter Property="Background" Value="{StaticResource Surface}" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Face"
+								CornerRadius="11"
+								Background="{TemplateBinding Background}"
+								BorderThickness="1.2"
+								BorderBrush="#CDD3DD"
+								Padding="{TemplateBinding Padding}">
+							<ContentPresenter HorizontalAlignment="Center"
+											  VerticalAlignment="Center"
+											  RecognizesAccessKey="True" />
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Face" Property="BorderBrush" Value="{StaticResource Signal}" />
+								<Setter TargetName="Face" Property="Background" Value="#F4F7FF" />
+							</Trigger>
+							<Trigger Property="IsKeyboardFocused" Value="True">
+								<Setter TargetName="Face" Property="BorderBrush" Value="{StaticResource Signal}" />
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="Face" Property="Background" Value="#E8EEFF" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Foreground" Value="#A5ABB6" />
+								<Setter TargetName="Face" Property="BorderBrush" Value="#E2E6ED" />
+								<Setter Property="Cursor" Value="Arrow" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
 		<Style TargetType="TextBox">
-			<Setter Property="Padding" Value="12,10" />
-			<Setter Property="BorderBrush" Value="#D7DDEA" />
-			<Setter Property="BorderThickness" Value="1" />
-			<Setter Property="Background" Value="White" />
-			<Setter Property="FontSize" Value="13" />
+			<Setter Property="Padding" Value="13,11" />
+			<Setter Property="Background" Value="{StaticResource Surface}" />
+			<Setter Property="Foreground" Value="{StaticResource Ink}" />
+			<Setter Property="CaretBrush" Value="{StaticResource Signal}" />
+			<Setter Property="SelectionBrush" Value="{StaticResource Signal}" />
+			<Setter Property="FontFamily" Value="{StaticResource Mono}" />
+			<Setter Property="FontSize" Value="12.5" />
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="TextBox">
+						<Border x:Name="Field"
+								CornerRadius="11"
+								Background="{TemplateBinding Background}"
+								BorderThickness="1.2"
+								BorderBrush="#CDD3DD"
+								Padding="{TemplateBinding Padding}">
+							<ScrollViewer x:Name="PART_ContentHost"
+										  VerticalAlignment="Center"
+										  Focusable="False"
+										  HorizontalScrollBarVisibility="Hidden"
+										  VerticalScrollBarVisibility="Hidden" />
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Field" Property="BorderBrush" Value="#B3BCCB" />
+							</Trigger>
+							<Trigger Property="IsKeyboardFocusWithin" Value="True">
+								<Setter TargetName="Field" Property="BorderBrush" Value="{StaticResource Signal}" />
+								<Setter TargetName="Field" Property="Background" Value="#FBFCFF" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- Corner tick for the viewfinder -->
+		<Style x:Key="Tick" TargetType="Border">
+			<Setter Property="Width" Value="13" />
+			<Setter Property="Height" Value="13" />
+			<Setter Property="BorderBrush" Value="#9AA3B2" />
 		</Style>
 	</Window.Resources>
 
-	<Grid Margin="22">
-		<Border Background="White"
-				CornerRadius="18"
-				Padding="24"
-				BorderBrush="#E5EAF3"
+	<Grid Margin="20">
+		<Border Background="{StaticResource Surface}"
+				CornerRadius="20"
+				Padding="26,22,26,24"
+				BorderBrush="#E1E5EC"
 				BorderThickness="1">
 			<Border.Effect>
-				<DropShadowEffect Color="#1F2937" BlurRadius="20" ShadowDepth="4" Opacity="0.10" />
+				<DropShadowEffect Color="#0F172A" BlurRadius="34" ShadowDepth="8" Direction="270" Opacity="0.13" />
 			</Border.Effect>
 
 			<StackPanel VerticalAlignment="Center">
+
+				<!-- Eyebrow: states the model's fixed constraints, which are real information -->
+				<Grid Margin="0,0,0,14">
+					<TextBlock Style="{StaticResource Caption}"
+							   Text="I M A G E   M O D E L"
+							   Foreground="{StaticResource Signal}" />
+					<TextBlock Style="{StaticResource Caption}"
+							   HorizontalAlignment="Right"
+							   Text="10 classes · 32 × 32" />
+				</Grid>
+				<Border Height="1" Background="{StaticResource Rule}" Margin="0,0,0,18" />
+
 				<TextBlock Text="CIFAR-10 Classifier"
-						   FontSize="24"
+						   FontSize="27"
 						   FontWeight="Bold"
-						   Foreground="#111827"
+						   Foreground="{StaticResource Ink}"
 						   HorizontalAlignment="Center"
 						   TextAlignment="Center" />
 				<TextBlock Text="Pick an image or paste a URL to classify it."
-						   Margin="0,8,0,20"
+						   Margin="0,7,0,22"
 						   FontSize="13"
-						   Foreground="#6B7280"
+						   Foreground="{StaticResource Muted}"
 						   HorizontalAlignment="Center"
 						   TextAlignment="Center" />
 
 				<Button x:Name="BtnPickFile"
-						Content="Pick Image File"
+						Style="{StaticResource OutlineButton}"
+						Content="Pick image file"
 						Click="BtnPickFile_Click" />
 
 				<TextBox x:Name="TxtUrl"
@@ -64,32 +241,74 @@
 						 GotFocus="TextUrlFocused"
 						 LostFocus="TextUrlUnfocused"
 						 TextChanged="TxtUrlType"
-						 Margin="0,0,0,12" />
+						 Margin="0,0,0,18" />
 
-				<Border Background="#F8FAFC"
-						BorderBrush="#E5E7EB"
+				<!-- Viewfinder: the image is framed like a negative on a contact sheet -->
+				<Grid Margin="0,0,0,16">
+					<Border Background="{StaticResource Well}"
+							BorderBrush="{StaticResource Rule}"
+							BorderThickness="1"
+							CornerRadius="14"
+							Padding="16">
+						<Grid Height="180">
+							<Image x:Name="ImgPreview"
+								   Stretch="Uniform"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center" />
+							<TextBlock Style="{StaticResource Caption}"
+									   HorizontalAlignment="Center"
+									   VerticalAlignment="Center"
+									   Text="no image loaded">
+								<TextBlock.Style>
+									<Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+										<Setter Property="Visibility" Value="Collapsed" />
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding Source, ElementName=ImgPreview}" Value="{x:Null}">
+												<Setter Property="Visibility" Value="Visible" />
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</TextBlock.Style>
+							</TextBlock>
+						</Grid>
+					</Border>
+
+					<!-- Corner ticks -->
+					<Border Style="{StaticResource Tick}" HorizontalAlignment="Left" VerticalAlignment="Top"
+							Margin="7" BorderThickness="1.4,1.4,0,0" />
+					<Border Style="{StaticResource Tick}" HorizontalAlignment="Right" VerticalAlignment="Top"
+							Margin="7" BorderThickness="0,1.4,1.4,0" />
+					<Border Style="{StaticResource Tick}" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+							Margin="7" BorderThickness="1.4,0,0,1.4" />
+					<Border Style="{StaticResource Tick}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+							Margin="7" BorderThickness="0,0,1.4,1.4" />
+				</Grid>
+
+				<!-- Prediction strip -->
+				<Border Background="#F6F8FF"
+						BorderBrush="#DCE3FA"
 						BorderThickness="1"
-						CornerRadius="14"
-						Padding="12"
-						Margin="0,0,0,16">
-					<Image x:Name="ImgPreview"
-						   Height="170"
-						   Stretch="Uniform"
-						   HorizontalAlignment="Center" />
+						CornerRadius="12"
+						Padding="14,11"
+						Margin="0,0,0,18">
+					<StackPanel>
+						<TextBlock Style="{StaticResource Caption}"
+								   Text="P R E D I C T I O N"
+								   TextAlignment="Center"
+								   Margin="0,0,0,4" />
+						<TextBlock x:Name="TxtResult"
+								   Text=""
+								   TextAlignment="Center"
+								   TextWrapping="Wrap"
+								   FontSize="17"
+								   FontWeight="SemiBold"
+								   Foreground="{StaticResource SignalDeep}" />
+					</StackPanel>
 				</Border>
 
-				<TextBlock x:Name="TxtResult"
-						   Text=""
-						   TextAlignment="Center"
-						   FontSize="16"
-						   FontWeight="SemiBold"
-						   Foreground="#1D4ED8"
-						   Margin="0,0,0,16" />
-
 				<Button x:Name="BtnClassify"
-						Content="Classify Image"
+						Content="Classify image"
 						Click="BtnClassify_Click"
-						Background="#0F766E"
 						Margin="0,0,0,0" />
 			</StackPanel>
 		</Border>
