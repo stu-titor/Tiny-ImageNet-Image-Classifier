@@ -70,6 +70,13 @@ namespace CifarInterface
             if(isSuccess == true) {
                 imageInput = fileSelector.FileName; //full path including file name
                 isImageFile = true;
+
+                BitmapImage preview = new BitmapImage();
+                preview.BeginInit();
+                preview.CacheOption = BitmapCacheOption.OnLoad;
+                preview.UriSource = new Uri(imageInput, UriKind.Absolute);
+                preview.EndInit();
+                ImgPreview.Source = preview;
             }
         }
 
