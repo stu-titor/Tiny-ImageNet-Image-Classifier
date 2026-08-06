@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace CifarInterface
+namespace MiruInterface
 {
     /// <summary>
     /// Interaction logic for App.xaml

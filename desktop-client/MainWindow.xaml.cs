@@ -14,7 +14,7 @@ using System.Text.Json;
 using Microsoft.Win32;
 using System.Runtime.CompilerServices;
 
-namespace CifarInterface
+namespace MiruInterface
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

@@ -20,7 +20,7 @@ The included model accepts RGB images, resizes them to 64×64 pixels, and return
 ├── desktop-client/             # .NET 10 WPF desktop application
 │   ├── MainWindow.xaml         # Tiny ImageNet classification console UI
 │   ├── MainWindow.xaml.cs      # File selection, preview, and API calls
-│   └── CifarInterface.csproj
+│   └── MiruInterface.csproj
 ├── python-backend/
 │   ├── src/
 │   │   ├── CNN.py              # PyTorch model definition
@@ -85,7 +85,7 @@ The API listens on `http://localhost:5000`.
 In a second terminal, from the repository root:
 
 ```bash
-dotnet run --project desktop-client/CifarInterface.csproj
+dotnet run --project desktop-client/MiruInterface.csproj
 ```
 
 Choose an image file or enter an image URL, then select **Run Classification**. Local files appear in the image monitor as soon as they are selected.
